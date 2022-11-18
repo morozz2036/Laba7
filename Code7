@@ -1,0 +1,223 @@
+#include <locale>
+#include <iostream>
+#include <algorithm>
+#include <stack>
+#include <vector>
+#include "L_ptr.cpp"
+
+using namespace std;
+
+template <typename T>
+class queuee : public L_ptr<T> {
+
+public:
+
+	queuee() : L_ptr<T>() { };
+
+	void Push(List<T>* g) {
+
+		List<T>* tmp = new List<T>;
+		*tmp = g;
+
+
+		if (this->size == 0) {
+			this->end = tmp;
+			this->head = tmp;
+		}
+		else {
+			this->end->next = tmp;
+			this->end = tmp;
+		}
+
+		this->size++;
+	};
+
+};
+
+
+void algorithm(int** G, int* visited, int size, int n, int space);
+void algorithm2(vector<queuee<int> > arr2, int* visited, int n, int space);
+
+void DFS(int** G, int size, int n = 0) {
+
+	if (n < size) cout << "Вершина = " << n << endl;
+	else return;
+
+	int* visited = new int[size];
+	for (int i = 0; i != size; i++) visited[i] = 0;
+
+	algorithm(G, visited, size, n, 1);
+
+	cout << endl << endl;
+
+	if (n >= size) return;
+	else  DFS(G, size, ++n);
+}
+
+void DFS(vector<queuee<int> > arr2, int size, int n = 0) {
+
+	if (n < size) cout << "Вершина = " << n << endl;
+	else return;
+
+	int* visited = new int[size];
+	for (int i = 0; i != size; i++) visited[i] = 0;
+
+
+	algorithm2(arr2, visited, n, 1);
+
+	cout << endl << endl;
+
+	if (n >= size) return;
+	else  DFS(arr2, size, ++n);
+}
+
+
+void algorithm(int** G, int* visited, int size, int n, int space) {
+
+	if (visited[n] == 1) return;
+	visited[n] = 1;
+
+	for (int i = 0; i != size; i++) {
+
+		if (G[n][i] == 0 || visited[i] == 1) continue;
+
+		for (int j = 0; j != space; j++) cout << "____";
+		cout << i << endl;
+		algorithm(G, visited, size, i, space + 1);
+	}
+}
+
+void algorithm2(vector<queuee<int> > arr2, int* visited, int n, int space) {
+
+	if (visited[n] == 1) return;
+	visited[n] = 1;
+
+	for (int i = 0; i < arr2[n].lenght(); i++) {
+		if (visited[arr2[n][i]] == 1) continue;
+
+		for (int j = 0; j < space; j++) cout << "____";
+		cout << arr2[n][i] << endl;
+		algorithm2(arr2, visited, arr2[n][i], space + 1);
+	}
+
+}
+
+
+int main()
+{
+	setlocale(LC_ALL, "rus");
+	srand(static_cast<unsigned int>(time(NULL)));
+
+	int count;
+	cout << "Введитк кол-во вершин: ";
+	cin >> count;
+
+	int** arr = new int* [count];
+
+	for (int i = 0; i != count; i++) {
+		arr[i] = new int[count];
+		for (int j = 0; j != count; j++) {
+			arr[i][j] = 0;
+		}
+	}
+	for (int i = 0; i < count; i++) {
+		for (int j = i + 1; j < count; j++) {
+			int r = rand() % 101;
+			if (r > 40) {
+				arr[i][j] = 1;
+				arr[j][i] = 1;
+			}
+			else {
+				arr[i][j] = 0;
+				arr[j][i] = 0;
+			}
+			arr[i][i] = 0;
+		}
+	}
+
+
+	for (int i = 0; i != count; i++) {
+
+		for (int j = 0; j != count; j++) {
+			cout << arr[i][j] << ' ';
+		}
+		cout << endl;
+	}
+
+	cout << endl;
+
+	DFS(arr, count, 0);
+	cout << endl << endl << endl << endl << endl;
+
+	//Реализуйте процедуру обхода в глубину для графа, представленного списками смежности.
+
+	vector<queuee<int> > arr2;
+	arr2.resize(count);
+
+	cout << "Список смежности" << endl;
+	for (int i = 0; i < count; i++) { //создаем список смежности
+		cout << "Вершина " << i << endl;
+		for (int j = 0; j < count; j++) {
+			if (arr[i][j] == 1) {
+				List<int>* g = new List<int>(j);
+				arr2[i].Push(g);
+				cout << j << ' ';
+			}
+
+		}
+		cout << endl;
+
+	}
+	cout << endl << endl << endl;
+
+	cout << "ВАААААААГХ" << endl;
+	DFS(arr2, count);
+
+	// сделать обход в глубину не рекурсивно
+
+	cout << endl << endl << endl << endl << endl;
+
+	for (int i = 0; i != count; i++) {
+
+		for (int j = 0; j != count; j++) {
+			cout << arr[i][j] << ' ';
+		}
+		cout << endl;
+	}
+
+	int* visited = new int[count];
+
+	cout << endl;
+
+	for (int i = 0; i != count; i++) {
+
+		cout << "Вершина " << i << endl;
+
+		for (int i = 0; i != count; i++) visited[i] = 0;
+
+		stack<int> Stack;
+		Stack.push(i);
+
+		while (!Stack.empty()) {
+
+			int node = Stack.top();
+			Stack.pop();
+
+			if (visited[node] == 1) continue;
+
+			visited[node] = 1;
+
+			for (int i = count - 1; i >= 0; i--) {
+
+				if (arr[node][i] == 0 || visited[i] == 1) continue;
+
+				Stack.push(i);
+			}
+
+			cout << node << " ";
+		}
+		cout << endl;
+	}
+
+	return 0;
+}
